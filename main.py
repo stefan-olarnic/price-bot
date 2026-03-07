@@ -5,11 +5,14 @@ import json
 def get_price(url):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+        )
+        page = context.new_page()
 
-        page.goto(url)
+        page.goto(url, wait_until="domcontentloaded", timeout=60000)
+        page.wait_for_selector(".product-new-price", timeout=60000)
 
-        # selector pentru preț (Amazon)
         price = page.locator(".product-new-price").first.inner_text()
 
         browser.close()
